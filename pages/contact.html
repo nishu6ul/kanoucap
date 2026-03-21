@@ -83,7 +83,7 @@
         </div>
       </div>
 
-      <form class="contact-form" onsubmit="event.preventDefault(); this.querySelector('.form-submit').textContent='Message Sent'; this.querySelector('.form-submit').disabled=true;">
+      <form class="contact-form" name="contact" method="POST" data-netlify="true" action="/pages/thank-you.html">
         <div class="form-row">
           <div class="form-group">
             <label for="first-name">First Name</label>
