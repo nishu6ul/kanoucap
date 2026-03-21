@@ -83,7 +83,7 @@
         </div>
       </div>
 
-      <form class="contact-form" name="contact" method="POST" data-netlify="true" action="/pages/thank-you.html">
+      <form class="contact-form" name="contact" method="POST" data-netlify="true" id="contact-form">
         <div class="form-row">
           <div class="form-group">
             <label for="first-name">First Name</label>
@@ -107,7 +107,37 @@
           <textarea id="message" name="message" required></textarea>
         </div>
         <button type="submit" class="form-submit">Send Message</button>
+        <p id="form-success" style="display:none; color: #D4A843; font-size: var(--text-sm); margin-top: var(--space-4); font-weight: 500;">Message received. We will be in touch shortly.</p>
+        <p id="form-error" style="display:none; color: #DD6974; font-size: var(--text-sm); margin-top: var(--space-4);">Something went wrong. Please email us at info@kanoucap.com.</p>
       </form>
+
+<script>
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var form = this;
+  var btn = form.querySelector('.form-submit');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(new FormData(form)).toString()
+  }).then(function(res) {
+    if (res.ok) {
+      form.reset();
+      btn.textContent = 'Sent';
+      document.getElementById('form-success').style.display = 'block';
+      document.getElementById('form-error').style.display = 'none';
+    } else {
+      throw new Error('Form submission failed');
+    }
+  }).catch(function() {
+    btn.textContent = 'Send Message';
+    btn.disabled = false;
+    document.getElementById('form-error').style.display = 'block';
+  });
+});
+</script>
 
     </div>
   </div>
