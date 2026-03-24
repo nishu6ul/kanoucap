@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Kanou Capital</title>
+<link rel="stylesheet" href="../base.css">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="./portal.css">
+</head>
+<body class="portal-page">
+
+<!-- Dashboard Header -->
+<header class="dashboard-header">
+  <div class="dashboard-header__inner">
+    <a href="../index.html" class="dashboard-header__logo">
+      <svg viewBox="0 0 36 36" fill="none" aria-label="Kanou Capital logo">
+        <rect width="36" height="36" rx="2" fill="#0B1A2E"/>
+        <path d="M8 28V8h3.2v8.4L19.6 8h4l-8.8 8.8L24 28h-4.2l-7-9.2-1.6 1.6V28H8z" fill="#B8860B"/>
+      </svg>
+      <span class="dashboard-header__logo-text">Kanou Capital</span>
+    </a>
+    <div class="dashboard-header__user">
+      <div>
+        <span class="dashboard-header__name" id="user-name"></span>
+        <span class="dashboard-header__fund" id="user-role">Administrator</span>
+      </div>
+      <a href="./dashboard.html" class="btn-logout" style="margin-right: var(--space-2);">Dashboard</a>
+      <button class="btn-logout" id="btn-logout">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="portal-main" style="background: var(--color-bg);">
+  <div class="dashboard-content">
+
+    <div class="dashboard-welcome">
+      <h1 class="dashboard-welcome__title">Admin Panel</h1>
+      <p class="dashboard-welcome__subtitle">Manage users and documents for the client portal.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab admin-tab--active" data-tab="users">User Management</button>
+      <button class="admin-tab" data-tab="documents">Document Upload</button>
+    </div>
+
+    <!-- ============================================================
+         USER MANAGEMENT TAB
+         ============================================================ -->
+    <div class="admin-panel admin-panel--active" id="panel-users">
+
+      <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 500; color: var(--color-text); margin-bottom: var(--space-4);">Create New User</h2>
+
+      <div id="user-alert-error" class="admin-alert admin-alert--error"></div>
+      <div id="user-alert-success" class="admin-alert admin-alert--success"></div>
+
+      <form class="admin-form" id="create-user-form">
+        <div class="admin-form-row">
+          <div class="form-group">
+            <label for="user-first-name">First Name</label>
+            <input type="text" id="user-first-name" required>
+          </div>
+          <div class="form-group">
+            <label for="user-last-name">Last Name</label>
+            <input type="text" id="user-last-name" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="user-email">Email</label>
+          <input type="email" id="user-email" required>
+        </div>
+        <div class="admin-form-row">
+          <div class="form-group">
+            <label for="user-role">Role</label>
+            <select id="user-role-select">
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="user-fund-type">Fund Type</label>
+            <select id="user-fund-type">
+              <option value="long_only">Long Only</option>
+              <option value="low_net_hedge">Low Net Hedge</option>
+              <option value="variable_net_hedge">Variable Net Hedge</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-create-user">Create User</button>
+      </form>
+
+      <div class="temp-password-box" id="temp-password-box">
+        <p class="temp-password-box__label">Temporary Password (share with user)</p>
+        <p class="temp-password-box__value" id="temp-password-value"></p>
+        <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-2);">The user will be prompted to change this password on first login.</p>
+      </div>
+
+      <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 500; color: var(--color-text); margin: var(--space-8) 0 var(--space-4);">Existing Users</h2>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Fund Type</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="5" class="portal-loading"><span class="spinner"></span> Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         DOCUMENT UPLOAD TAB
+         ============================================================ -->
+    <div class="admin-panel" id="panel-documents">
+
+      <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 500; color: var(--color-text); margin-bottom: var(--space-4);">Upload Document</h2>
+
+      <div id="doc-alert-error" class="admin-alert admin-alert--error"></div>
+      <div id="doc-alert-success" class="admin-alert admin-alert--success"></div>
+
+      <form class="admin-form" id="upload-doc-form">
+        <div class="form-group">
+          <label for="doc-file">File</label>
+          <input type="file" id="doc-file" required>
+        </div>
+        <div class="form-group">
+          <label for="doc-name">Document Name</label>
+          <input type="text" id="doc-name" required placeholder="e.g. Q1 2026 Monthly Report">
+        </div>
+        <div class="admin-form-row">
+          <div class="form-group">
+            <label for="doc-category">Category</label>
+            <select id="doc-category">
+              <option value="presentation">Presentation</option>
+              <option value="monthly_report">Monthly Report</option>
+              <option value="factsheet">Factsheet</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="doc-fund-type">Fund Type</label>
+            <select id="doc-fund-type">
+              <option value="all">All Funds</option>
+              <option value="long_only">Long Only</option>
+              <option value="low_net_hedge">Low Net Hedge</option>
+              <option value="variable_net_hedge">Variable Net Hedge</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-upload-doc">Upload Document</button>
+      </form>
+
+      <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 500; color: var(--color-text); margin: var(--space-8) 0 var(--space-4);">Existing Documents</h2>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="docs-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Fund Type</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="docs-tbody">
+            <tr><td colspan="6" class="portal-loading"><span class="spinner"></span> Loading documents...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <span class="site-footer__brand">Kanou Capital LLP</span>
+    <div class="site-footer__attribution">
+      <span>&copy; 2026 Kanou Capital LLP. All rights reserved.</span>
+      &nbsp;&middot;&nbsp;
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./portal.js"></script>
+<script>
+(async function() {
+  initSupabase();
+
+  var authData = await requireAuth({ requireAdmin: true, skipDisclaimer: true });
+  if (!authData) return;
+
+  var profile = authData.profile;
+
+  // Update header
+  document.getElementById('user-name').innerHTML = '<strong>' + profile.first_name + ' ' + profile.last_name + '</strong>';
+
+  // Logout
+  document.getElementById('btn-logout').addEventListener('click', function() { signOut(); });
+
+  // --- Tab switching ---
+  var tabs = document.querySelectorAll('.admin-tab');
+  var panels = document.querySelectorAll('.admin-panel');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('admin-tab--active'); });
+      panels.forEach(function(p) { p.classList.remove('admin-panel--active'); });
+      tab.classList.add('admin-tab--active');
+      document.getElementById('panel-' + tab.getAttribute('data-tab')).classList.add('admin-panel--active');
+    });
+  });
+
+  // ============================================================
+  // USER MANAGEMENT
+  // ============================================================
+
+  async function loadUsers() {
+    var tbody = document.getElementById('users-tbody');
+    var profiles = await getAllProfiles();
+    if (profiles.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color: var(--color-text-faint); text-align: center; padding: var(--space-6);">No users found.</td></tr>';
+      return;
+    }
+    var html = '';
+    profiles.forEach(function(p) {
+      html += '<tr>';
+      html += '<td>' + escapeHtml(p.first_name + ' ' + p.last_name) + '</td>';
+      html += '<td>' + escapeHtml(p.email) + '</td>';
+      html += '<td><span class="badge badge--' + p.role + '">' + p.role + '</span></td>';
+      html += '<td>' + formatFundType(p.fund_type) + '</td>';
+      html += '<td>' + formatDate(p.created_at) + '</td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  loadUsers();
+
+  // Create user form
+  var createUserForm = document.getElementById('create-user-form');
+  var userAlertError = document.getElementById('user-alert-error');
+  var userAlertSuccess = document.getElementById('user-alert-success');
+  var tempPasswordBox = document.getElementById('temp-password-box');
+
+  createUserForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideAdminAlert(userAlertError);
+    hideAdminAlert(userAlertSuccess);
+    tempPasswordBox.classList.remove('temp-password-box--visible');
+
+    var firstName = document.getElementById('user-first-name').value.trim();
+    var lastName = document.getElementById('user-last-name').value.trim();
+    var email = document.getElementById('user-email').value.trim();
+    var role = document.getElementById('user-role-select').value;
+    var fundType = document.getElementById('user-fund-type').value;
+
+    var btn = document.getElementById('btn-create-user');
+    btn.textContent = 'Creating...';
+    btn.disabled = true;
+
+    try {
+      var result = await createUser(firstName, lastName, email, role, fundType);
+
+      showAdminAlert(userAlertSuccess, 'User created successfully: ' + email);
+      document.getElementById('temp-password-value').textContent = result.tempPassword;
+      tempPasswordBox.classList.add('temp-password-box--visible');
+
+      createUserForm.reset();
+      loadUsers();
+    } catch (err) {
+      showAdminAlert(userAlertError, err.message || 'Failed to create user.');
+    } finally {
+      btn.textContent = 'Create User';
+      btn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // DOCUMENT MANAGEMENT
+  // ============================================================
+
+  async function loadDocuments() {
+    var tbody = document.getElementById('docs-tbody');
+    var docs = await getAllDocuments();
+    if (docs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color: var(--color-text-faint); text-align: center; padding: var(--space-6);">No documents uploaded yet.</td></tr>';
+      return;
+    }
+    var html = '';
+    docs.forEach(function(doc) {
+      html += '<tr>';
+      html += '<td>' + escapeHtml(doc.name) + '</td>';
+      html += '<td>' + formatCategory(doc.category) + '</td>';
+      html += '<td>' + formatFundType(doc.fund_type) + '</td>';
+      html += '<td>' + formatFileSize(doc.file_size) + '</td>';
+      html += '<td>' + formatDate(doc.uploaded_at) + '</td>';
+      html += '<td><button class="btn-danger" data-delete-doc="' + doc.id + '" data-delete-path="' + escapeHtml(doc.file_path) + '">Delete</button></td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+
+    // Attach delete handlers
+    tbody.querySelectorAll('[data-delete-doc]').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to delete this document?')) return;
+        var docId = this.getAttribute('data-delete-doc');
+        var filePath = this.getAttribute('data-delete-path');
+        this.textContent = '...';
+        this.disabled = true;
+        try {
+          await deleteDocument(docId, filePath);
+          showAdminAlert(document.getElementById('doc-alert-success'), 'Document deleted.');
+          loadDocuments();
+        } catch (err) {
+          showAdminAlert(document.getElementById('doc-alert-error'), 'Failed to delete: ' + err.message);
+          this.textContent = 'Delete';
+          this.disabled = false;
+        }
+      });
+    });
+  }
+
+  loadDocuments();
+
+  // Upload document form
+  var uploadForm = document.getElementById('upload-doc-form');
+  var docAlertError = document.getElementById('doc-alert-error');
+  var docAlertSuccess = document.getElementById('doc-alert-success');
+
+  uploadForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideAdminAlert(docAlertError);
+    hideAdminAlert(docAlertSuccess);
+
+    var fileInput = document.getElementById('doc-file');
+    var file = fileInput.files[0];
+    if (!file) {
+      showAdminAlert(docAlertError, 'Please select a file.');
+      return;
+    }
+
+    var name = document.getElementById('doc-name').value.trim();
+    var category = document.getElementById('doc-category').value;
+    var fundType = document.getElementById('doc-fund-type').value;
+
+    var btn = document.getElementById('btn-upload-doc');
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+
+    try {
+      await uploadDocument(file, name, category, fundType, profile.id);
+      showAdminAlert(docAlertSuccess, 'Document uploaded successfully.');
+      uploadForm.reset();
+      loadDocuments();
+    } catch (err) {
+      showAdminAlert(docAlertError, err.message || 'Failed to upload document.');
+    } finally {
+      btn.textContent = 'Upload Document';
+      btn.disabled = false;
+    }
+  });
+})();
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+<script src="../theme.js"></script>
+</body>
+</html>

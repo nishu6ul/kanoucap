@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Kanou Capital</title>
+<meta name="description" content="Kanou Capital client portal login. Access your fund documents and reports.">
+<link rel="stylesheet" href="../base.css">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="./portal.css">
+</head>
+<body class="portal-page">
+
+<section class="auth-section">
+  <div class="auth-card">
+
+    <div class="auth-card__logo">
+      <svg viewBox="0 0 36 36" fill="none" aria-label="Kanou Capital logo">
+        <rect width="36" height="36" rx="2" fill="#0B1A2E"/>
+        <path d="M8 28V8h3.2v8.4L19.6 8h4l-8.8 8.8L24 28h-4.2l-7-9.2-1.6 1.6V28H8z" fill="#B8860B"/>
+      </svg>
+      <span class="auth-card__logo-text">Kanou Capital</span>
+    </div>
+
+    <h1 class="auth-card__title">Client Portal</h1>
+    <p class="auth-card__subtitle">Sign in to access your fund documents</p>
+
+    <div id="alert-error" class="alert alert--error"></div>
+
+    <form class="portal-form" id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+      </div>
+      <button type="submit" class="btn-primary" id="btn-login">Sign In</button>
+    </form>
+
+    <p style="text-align: center; margin-top: var(--space-6); font-size: var(--text-xs); color: rgba(255,255,255,0.4);">
+      <a href="../index.html" style="color: rgba(255,255,255,0.4); text-decoration: none;">&larr; Back to website</a>
+    </p>
+
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./portal.js"></script>
+<script>
+(function() {
+  var form = document.getElementById('login-form');
+  var alertEl = document.getElementById('alert-error');
+  var btn = document.getElementById('btn-login');
+
+  // If already logged in, redirect
+  initSupabase();
+  getSession().then(function(session) {
+    if (session) {
+      getProfile(session.user.id).then(function(profile) {
+        if (profile) {
+          if (profile.must_change_password) {
+            window.location.href = './change-password.html';
+          } else if (profile.role === 'admin') {
+            window.location.href = './admin.html';
+          } else if (!profile.disclaimer_accepted) {
+            window.location.href = './disclaimer.html';
+          } else {
+            window.location.href = './dashboard.html';
+          }
+        }
+      });
+    }
+  });
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideAlert(alertEl);
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+
+    try {
+      var email = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
+
+      var data = await signIn(email, password);
+      var profile = await getProfile(data.user.id);
+
+      if (!profile) {
+        showAlert(alertEl, 'Account not found. Please contact your administrator.');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+        return;
+      }
+
+      if (profile.must_change_password) {
+        window.location.href = './change-password.html';
+      } else if (profile.role === 'admin') {
+        window.location.href = './admin.html';
+      } else if (!profile.disclaimer_accepted) {
+        window.location.href = './disclaimer.html';
+      } else {
+        window.location.href = './dashboard.html';
+      }
+    } catch (err) {
+      showAlert(alertEl, err.message || 'Invalid email or password. Please try again.');
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+<script src="../theme.js"></script>
+</body>
+</html>

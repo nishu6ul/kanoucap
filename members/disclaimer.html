@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disclaimer | Kanou Capital</title>
+<link rel="stylesheet" href="../base.css">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="./portal.css">
+</head>
+<body class="portal-page">
+
+<section class="auth-section">
+  <div class="auth-card auth-card--wide">
+
+    <div class="auth-card__logo">
+      <svg viewBox="0 0 36 36" fill="none" aria-label="Kanou Capital logo">
+        <rect width="36" height="36" rx="2" fill="#0B1A2E"/>
+        <path d="M8 28V8h3.2v8.4L19.6 8h4l-8.8 8.8L24 28h-4.2l-7-9.2-1.6 1.6V28H8z" fill="#B8860B"/>
+      </svg>
+      <span class="auth-card__logo-text">Kanou Capital</span>
+    </div>
+
+    <h1 class="auth-card__title">Important Disclaimer</h1>
+    <p class="auth-card__subtitle">Please read and accept before continuing</p>
+
+    <div class="disclaimer-text">
+      <p>By proceeding, you confirm that you are a professional/institutional investor and have authorization to access Kanou Capital's client documents. The information contained within this portal is confidential and intended solely for authorized recipients.</p>
+      <p>The materials available in this portal are provided for informational purposes only and do not constitute an offer or solicitation to buy or sell any securities or financial instruments. Past performance is not indicative of future results.</p>
+      <p>All documents and data are proprietary to Kanou Capital LLP and may not be reproduced, distributed, or disclosed to any third party without prior written consent. By accessing this portal, you agree to maintain the confidentiality of all information contained herein.</p>
+      <p>Kanou Capital LLP is authorised and regulated by the Financial Conduct Authority. Registered in England and Wales.</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" id="btn-decline">Decline</button>
+      <button class="btn-primary" id="btn-accept">I Accept</button>
+    </div>
+
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./portal.js"></script>
+<script>
+(function() {
+  var btnAccept = document.getElementById('btn-accept');
+  var btnDecline = document.getElementById('btn-decline');
+
+  initSupabase();
+
+  var currentProfile = null;
+
+  // Must be logged in, allow if disclaimer not yet accepted
+  getSession().then(function(session) {
+    if (!session) {
+      window.location.href = './login.html';
+      return;
+    }
+    getProfile(session.user.id).then(function(profile) {
+      if (!profile) {
+        window.location.href = './login.html';
+        return;
+      }
+      if (profile.must_change_password) {
+        window.location.href = './change-password.html';
+        return;
+      }
+      if (profile.disclaimer_accepted) {
+        // Already accepted, go to dashboard
+        if (profile.role === 'admin') {
+          window.location.href = './admin.html';
+        } else {
+          window.location.href = './dashboard.html';
+        }
+        return;
+      }
+      currentProfile = profile;
+    });
+  });
+
+  btnAccept.addEventListener('click', async function() {
+    btnAccept.textContent = 'Processing...';
+    btnAccept.disabled = true;
+
+    try {
+      var session = await getSession();
+      if (session) {
+        await updateProfile(session.user.id, { disclaimer_accepted: true });
+        window.location.href = './dashboard.html';
+      }
+    } catch (err) {
+      alert('An error occurred. Please try again.');
+      btnAccept.textContent = 'I Accept';
+      btnAccept.disabled = false;
+    }
+  });
+
+  btnDecline.addEventListener('click', async function() {
+    await signOut();
+    window.location.href = '../index.html';
+  });
+})();
+</script>
+<script src="../theme.js"></script>
+</body>
+</html>
