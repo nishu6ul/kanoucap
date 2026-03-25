@@ -427,3 +427,25 @@ Log in as admin at /members/admin.html, use the User Management tab.
 | test.longonly@example.com | TestPass#123 | member | long_only | must_change_password=true |
 | test.lownet@example.com | TestPass#123 | member | low_net_hedge | must_change_password=true |
 | test.varnet@example.com | TestPass#123 | member | variable_net_hedge | must_change_password=true |
+
+### 2026-03-25: Multi-Fund Support
+- **Database**: Added `fund_types` TEXT[] column to profiles (array of fund types per user)
+- **Database**: Updated document category constraint: presentation, annual_letter, monthly_letter, other (removed factsheet and monthly_report)
+- **Database**: Updated RLS policy to check array membership for document access
+- **Admin panel**: Fund type selection changed from dropdown to checkboxes (multi-select)
+- **Dashboard**: Shows tabs when user has access to multiple fund types. Each tab filters documents for that fund. Documents grouped into sections: Presentations, Annual Letters, Monthly Letters, Others. Empty sections hidden.
+- **portal.js**: createUser accepts array of fund types, getDocuments supports array filtering, added formatFundTypes() for array display, updated formatCategory with new categories
+
+#### Document Categories
+| Category Value | Display Name |
+|----------------|-------------|
+| presentation | Presentations |
+| annual_letter | Annual Letters |
+| monthly_letter | Monthly Letters |
+| other | Others |
+
+#### Multi-Fund User Example
+A user with `fund_types: ['long_only', 'low_net_hedge']` sees:
+- Dashboard with two tabs: "Long Only" and "Low Net Hedge Fund"
+- Each tab shows documents tagged for that fund type + documents tagged "all"
+- Variable Net Hedge Fund documents are NOT visible

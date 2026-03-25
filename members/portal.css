@@ -701,6 +701,118 @@
 }
 
 /* ============================================================
+   FUND TYPE TABS (Dashboard)
+   ============================================================ */
+.fund-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.fund-tab {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.3s, border-color 0.3s;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.fund-tab:hover {
+  color: var(--color-text);
+}
+
+.fund-tab--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.fund-tab-panel {
+  display: none;
+}
+
+.fund-tab-panel--active {
+  display: block;
+}
+
+/* ============================================================
+   CHECKBOX GROUP (Admin fund type selection)
+   ============================================================ */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.admin-form .checkbox-group .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-surface-2);
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-navy);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -1px;
+}
+
+.checkbox-label input[type="checkbox"]:focus-visible + .checkbox-custom {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.admin-form .checkbox-group .checkbox-label:hover .checkbox-custom {
+  border-color: var(--color-primary);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 640px) {
@@ -735,6 +847,16 @@
 
   .admin-tabs {
     overflow-x: auto;
+  }
+
+  .fund-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fund-tab {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-xs);
   }
 
   .btn-row {

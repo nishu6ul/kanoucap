@@ -107,13 +107,17 @@ async function requireAuth(opts) {
 
 /* --- Document Helpers --- */
 
-async function getDocuments(fundType) {
+async function getDocuments(fundTypes) {
   const sb = initSupabase();
   if (!sb) return [];
+  // fundTypes can be a string or an array
+  if (typeof fundTypes === 'string') fundTypes = [fundTypes];
+  var orParts = fundTypes.map(function(ft) { return 'fund_type.eq.' + ft; });
+  orParts.push('fund_type.eq.all');
   const { data, error } = await sb
     .from('documents')
     .select('*')
-    .or('fund_type.eq.' + fundType + ',fund_type.eq.all')
+    .or(orParts.join(','))
     .order('uploaded_at', { ascending: false });
   if (error) { console.error('Documents fetch error:', error); return []; }
   return data || [];
@@ -201,7 +205,10 @@ async function getDocumentSignedUrl(filePath) {
 
 /* --- Admin: Create User --- */
 
-async function createUser(firstName, lastName, email, role, fundType) {
+async function createUser(firstName, lastName, email, role, fundTypes) {
+  // fundTypes is an array of selected fund types
+  var primaryFundType = fundTypes[0];
+
   // Generate random temp password
   var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
   var tempPassword = '';
@@ -255,7 +262,8 @@ async function createUser(firstName, lastName, email, role, fundType) {
       last_name: lastName,
       email: email,
       role: role,
-      fund_type: fundType,
+      fund_type: primaryFundType,
+      fund_types: fundTypes,
       disclaimer_accepted: false,
       must_change_password: true
     })
@@ -297,12 +305,17 @@ function formatFundType(ft) {
   return map[ft] || ft;
 }
 
+function formatFundTypes(arr) {
+  if (!arr || !Array.isArray(arr) || arr.length === 0) return '';
+  return arr.map(function(ft) { return formatFundType(ft); }).join(', ');
+}
+
 function formatCategory(cat) {
   var map = {
     'presentation': 'Presentations',
-    'monthly_report': 'Monthly Reports',
-    'factsheet': 'Factsheets',
-    'other': 'Other Documents'
+    'annual_letter': 'Annual Letters',
+    'monthly_letter': 'Monthly Letters',
+    'other': 'Others'
   };
   return map[cat] || cat;
 }

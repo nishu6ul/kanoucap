@@ -95,12 +95,24 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="user-fund-type">Fund Type</label>
-            <select id="user-fund-type">
-              <option value="long_only">Long Only</option>
-              <option value="low_net_hedge">Low Net Hedge Fund</option>
-              <option value="variable_net_hedge">Variable Net Hedge Fund</option>
-            </select>
+            <label>Fund Types</label>
+            <div class="checkbox-group" id="user-fund-types">
+              <label class="checkbox-label">
+                <input type="checkbox" name="fund_type" value="long_only">
+                <span class="checkbox-custom"></span>
+                Long Only
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="fund_type" value="low_net_hedge">
+                <span class="checkbox-custom"></span>
+                Low Net Hedge Fund
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="fund_type" value="variable_net_hedge">
+                <span class="checkbox-custom"></span>
+                Variable Net Hedge Fund
+              </label>
+            </div>
           </div>
         </div>
         <button type="submit" class="btn-primary" id="btn-create-user">Create User</button>
@@ -121,7 +133,7 @@
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Fund Type</th>
+              <th>Fund Types</th>
               <th>Created</th>
             </tr>
           </thead>
@@ -155,8 +167,8 @@
             <label for="doc-category">Category</label>
             <select id="doc-category">
               <option value="presentation">Presentation</option>
-              <option value="monthly_report">Monthly Report</option>
-              <option value="factsheet">Factsheet</option>
+              <option value="annual_letter">Annual Letter</option>
+              <option value="monthly_letter">Monthly Letter</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -278,7 +290,7 @@ async function doSignOut() {
         html += '<td>' + escapeHtml(p.first_name + ' ' + p.last_name) + '</td>';
         html += '<td>' + escapeHtml(p.email) + '</td>';
         html += '<td><span class="badge badge--' + p.role + '">' + p.role + '</span></td>';
-        html += '<td>' + formatFundType(p.fund_type) + '</td>';
+        html += '<td>' + (p.fund_types && p.fund_types.length ? formatFundTypes(p.fund_types) : formatFundType(p.fund_type)) + '</td>';
         html += '<td>' + formatDate(p.created_at) + '</td>';
         html += '</tr>';
       });
@@ -306,14 +318,23 @@ async function doSignOut() {
     var lastName = document.getElementById('user-last-name').value.trim();
     var email = document.getElementById('user-email').value.trim();
     var role = document.getElementById('user-role-select').value;
-    var fundType = document.getElementById('user-fund-type').value;
+
+    // Collect selected fund types from checkboxes
+    var fundTypeCheckboxes = document.querySelectorAll('#user-fund-types input[name="fund_type"]:checked');
+    var fundTypes = [];
+    fundTypeCheckboxes.forEach(function(cb) { fundTypes.push(cb.value); });
+
+    if (fundTypes.length === 0) {
+      showAdminAlert(userAlertError, 'Please select at least one fund type.');
+      return;
+    }
 
     var btn = document.getElementById('btn-create-user');
     btn.textContent = 'Creating...';
     btn.disabled = true;
 
     try {
-      var result = await createUser(firstName, lastName, email, role, fundType);
+      var result = await createUser(firstName, lastName, email, role, fundTypes);
 
       showAdminAlert(userAlertSuccess, 'User created successfully: ' + email);
       document.getElementById('temp-password-value').textContent = result.tempPassword;

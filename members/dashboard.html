@@ -93,28 +93,83 @@ async function doSignOut() {
 
   var profile = authData.profile;
 
-  // Fetch documents
-  var docs;
+  // Determine user's fund types
+  var userFundTypes = profile.fund_types && Array.isArray(profile.fund_types) && profile.fund_types.length > 0
+    ? profile.fund_types
+    : (profile.fund_type ? [profile.fund_type] : []);
+  var isMultiFund = userFundTypes.length > 1;
+
+  // Fetch all documents the user has access to
+  var allDocs;
   try {
     if (profile.role === 'admin') {
-      docs = await getAllDocuments();
+      allDocs = await getAllDocuments();
     } else {
-      docs = await getDocuments(profile.fund_type);
+      allDocs = await getDocuments(userFundTypes);
     }
   } catch (err) {
-    docs = [];
+    allDocs = [];
   }
 
-  // Group by category
-  var categories = {};
-  var categoryOrder = ['presentation', 'monthly_report', 'factsheet', 'other'];
+  var categoryOrder = ['presentation', 'annual_letter', 'monthly_letter', 'other'];
 
-  docs.forEach(function(doc) {
-    if (!categories[doc.category]) {
-      categories[doc.category] = [];
+  // Helper: render document sections for a given fund type
+  function renderDocSections(docs, fundType, isAdmin) {
+    // Filter docs for this fund type + 'all'
+    var filtered;
+    if (isAdmin) {
+      // Admin sees everything in this tab
+      if (fundType === '__all__') {
+        filtered = docs;
+      } else {
+        filtered = docs.filter(function(d) {
+          return d.fund_type === fundType || d.fund_type === 'all';
+        });
+      }
+    } else {
+      filtered = docs.filter(function(d) {
+        return d.fund_type === fundType || d.fund_type === 'all';
+      });
     }
-    categories[doc.category].push(doc);
-  });
+
+    // Group by category
+    var categories = {};
+    filtered.forEach(function(doc) {
+      if (!categories[doc.category]) categories[doc.category] = [];
+      categories[doc.category].push(doc);
+    });
+
+    var html = '';
+    var hasDocs = false;
+
+    categoryOrder.forEach(function(cat) {
+      if (categories[cat] && categories[cat].length > 0) {
+        hasDocs = true;
+        html += '<div class="doc-category">';
+        html += '<h2 class="doc-category__title">' + formatCategory(cat) + '</h2>';
+        html += '<ul class="doc-list">';
+        categories[cat].forEach(function(doc) {
+          html += '<li class="doc-item">';
+          html += '<div class="doc-item__info">';
+          html += '<div class="doc-item__name">' + escapeHtml(doc.name) + '</div>';
+          html += '<div class="doc-item__meta">' + formatDate(doc.uploaded_at);
+          if (doc.file_size) html += ' &middot; ' + formatFileSize(doc.file_size);
+          if (isAdmin) html += ' &middot; ' + formatFundType(doc.fund_type);
+          html += '</div>';
+          html += '</div>';
+          html += '<a href="#" class="doc-item__download" data-path="' + escapeHtml(doc.file_path) + '">Download</a>';
+          html += '</li>';
+        });
+        html += '</ul></div>';
+      }
+    });
+
+    if (!hasDocs) {
+      html += '<div class="doc-empty">No documents available. Check back soon.</div>';
+    }
+
+    return html;
+  }
 
   // Render
   var container = document.getElementById('dashboard-content');
@@ -124,7 +179,8 @@ async function doSignOut() {
   html += '<div class="dashboard-welcome" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);">';
   html += '<div>';
   html += '<h1 class="dashboard-welcome__title">Welcome, ' + escapeHtml(profile.first_name) + '</h1>';
-  html += '<p class="dashboard-welcome__subtitle">' + formatFundType(profile.fund_type) + ' - Access your fund documents and reports below.</p>';
+  var subtitleText = isMultiFund ? formatFundTypes(userFundTypes) : formatFundType(userFundTypes[0] || '');
+  html += '<p class="dashboard-welcome__subtitle">' + subtitleText + ' - Access your fund documents and reports below.</p>';
   html += '</div>';
   html += '<div style="display: flex; gap: var(--space-3); align-items: center;">';
   if (profile.role === 'admin') {
@@ -134,34 +190,24 @@ async function doSignOut() {
   html += '</div>';
   html += '</div>';
 
-  var hasDocs = false;
+  if (isMultiFund) {
+    // Render fund type tabs
+    html += '<div class="fund-tabs">';
+    userFundTypes.forEach(function(ft, idx) {
+      html += '<button class="fund-tab' + (idx === 0 ? ' fund-tab--active' : '') + '" data-fund-tab="' + ft + '">' + formatFundType(ft) + '</button>';
+    });
+    html += '</div>';
 
-  categoryOrder.forEach(function(cat) {
-    if (categories[cat] && categories[cat].length > 0) {
-      hasDocs = true;
-      html += '<div class="doc-category">';
-      html += '<h2 class="doc-category__title">' + formatCategory(cat) + '</h2>';
-      html += '<ul class="doc-list">';
-
-      categories[cat].forEach(function(doc) {
-        html += '<li class="doc-item">';
-        html += '<div class="doc-item__info">';
-        html += '<div class="doc-item__name">' + escapeHtml(doc.name) + '</div>';
-        html += '<div class="doc-item__meta">' + formatDate(doc.uploaded_at);
-        if (doc.file_size) html += ' &middot; ' + formatFileSize(doc.file_size);
-        if (profile.role === 'admin') html += ' &middot; ' + formatFundType(doc.fund_type);
-        html += '</div>';
-        html += '</div>';
-        html += '<a href="#" class="doc-item__download" data-path="' + escapeHtml(doc.file_path) + '">Download</a>';
-        html += '</li>';
-      });
-
-      html += '</ul></div>';
-    }
-  });
-
-  if (!hasDocs) {
-    html += '<div class="doc-empty">No documents available. Check back soon.</div>';
+    // Render tab panels
+    userFundTypes.forEach(function(ft, idx) {
+      html += '<div class="fund-tab-panel' + (idx === 0 ? ' fund-tab-panel--active' : '') + '" data-fund-panel="' + ft + '">';
+      html += renderDocSections(allDocs, ft, profile.role === 'admin');
+      html += '</div>';
+    });
+  } else {
+    // Single fund type - no tabs needed
+    var singleFund = userFundTypes[0] || 'all';
+    html += renderDocSections(allDocs, profile.role === 'admin' ? '__all__' : singleFund, profile.role === 'admin');
   }
 
   if (profile.role === 'admin') {
@@ -174,6 +220,21 @@ async function doSignOut() {
   var logoutBtn = document.getElementById('btn-logout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function() { doSignOut(); });
+  }
+
+  // Fund tab switching
+  if (isMultiFund) {
+    var fundTabs = container.querySelectorAll('.fund-tab');
+    var fundPanels = container.querySelectorAll('.fund-tab-panel');
+    fundTabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        fundTabs.forEach(function(t) { t.classList.remove('fund-tab--active'); });
+        fundPanels.forEach(function(p) { p.classList.remove('fund-tab-panel--active'); });
+        tab.classList.add('fund-tab--active');
+        var targetFund = tab.getAttribute('data-fund-tab');
+        container.querySelector('[data-fund-panel="' + targetFund + '"]').classList.add('fund-tab-panel--active');
+      });
+    });
   }
 
   // Handle download clicks
