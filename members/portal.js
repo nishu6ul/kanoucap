@@ -6,17 +6,17 @@
 const SUPABASE_URL = 'https://zwyymyalysvjlujrgfcg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eXlteWFseXN2amx1anJnZmNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTU2MTEsImV4cCI6MjA4OTkzMTYxMX0.yrVjQbGAs_wkZssYVplRLZxIqQexYAceGrb6heoWel4';
 
-let supabase;
+var _sbClient;
 
 function initSupabase() {
   if (!window.supabase) {
     console.error('Supabase JS library not loaded');
     return null;
   }
-  if (!supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (!_sbClient) {
+    _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
-  return supabase;
+  return _sbClient;
 }
 
 /* --- Auth Helpers --- */
@@ -49,7 +49,7 @@ async function signOut() {
   const sb = initSupabase();
   if (!sb) return;
   await sb.auth.signOut();
-  window.location.href = './login.html';
+  window.location.href = '../index.html';
 }
 
 async function updatePassword(newPassword) {
@@ -270,7 +270,7 @@ async function createUser(firstName, lastName, email, role, fundType) {
 }
 
 // Service key for admin operations (only used on admin page)
-const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eXlteWFseXN2amx1anJnZmNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MSwiZXhwIjoyMDg5OTMxNjExfQ.1VEo9f5gWLuM-StAvyNDZAprP7dFxyxvuRBz5CtFcFY';
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eXlteWFseXN2amx1anJnZmNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDM1NTYxMSwiZXhwIjoyMDg5OTMxNjExfQ.1VEo9f5gWLuM-StAvyNDZAprP7dFxyxvuRBz5CtFcFY';
 
 /* --- Utility --- */
 

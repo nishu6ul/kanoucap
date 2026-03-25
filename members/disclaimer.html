@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!--
-   ______                            __
-  / ____/___  ____ ___  ____  __  __/ /____  _____
- / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
-/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
-\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
-                    /_/
-        Created with Perplexity Computer
-        https://www.perplexity.ai/computer
--->
-<meta name="generator" content="Perplexity Computer">
-<meta name="author" content="Perplexity Computer">
-<meta property="og:see_also" content="https://www.perplexity.ai/computer">
-<link rel="author" href="https://www.perplexity.ai/computer">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Disclaimer | Kanou Capital</title>
+<meta name="description" content="Kanou Capital client portal disclaimer.">
 <link rel="stylesheet" href="../base.css">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="./portal.css">
 </head>
 <body class="portal-page">
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a href="../index.html" class="site-logo">
+      <svg class="site-logo__icon" viewBox="0 0 36 36" fill="none" aria-label="Kanou Capital logo mark">
+        <rect width="36" height="36" rx="2" fill="var(--color-navy, #0B1A2E)"/>
+        <path d="M8 28V8h3.2v8.4L19.6 8h4l-8.8 8.8L24 28h-4.2l-7-9.2-1.6 1.6V28H8z" fill="var(--color-primary, #B8860B)"/>
+      </svg>
+      <div>
+        <span class="site-logo__text">Kanou Capital</span>
+        <span class="site-logo__tagline">Alpha + Impact</span>
+      </div>
+    </a>
+    <nav class="site-nav">
+      <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.site-nav__links').classList.toggle('site-nav__links--open')">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="site-nav__links" role="list">
+        <li><a href="../index.html" class="site-nav__link">Home</a></li>
+        <li><a href="../pages/team.html" class="site-nav__link">Team</a></li>
+        <li><a href="../pages/insights.html" class="site-nav__link">Insights</a></li>
+        <li><a href="../pages/news.html" class="site-nav__link">News</a></li>
+        <li><a href="../pages/contact.html" class="site-nav__link">Contact</a></li>
+        <li><a href="./login.html" class="site-nav__link">Login</a></li>
+      </ul>
+      <button class="theme-toggle" data-theme-toggle aria-label="Switch to dark mode">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
 
 <section class="auth-section">
   <div class="auth-card auth-card--wide">
@@ -53,6 +71,25 @@
   </div>
 </section>
 
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <span class="site-footer__brand">Kanou Capital LLP</span>
+    <ul class="site-footer__links" role="list">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../pages/team.html">Team</a></li>
+      <li><a href="../pages/insights.html">Insights</a></li>
+      <li><a href="../pages/news.html">News</a></li>
+      <li><a href="../pages/contact.html">Contact</a></li>
+      <li><a href="./login.html">Login</a></li>
+    </ul>
+    <div class="site-footer__attribution">
+      <span>&copy; 2026 Kanou Capital LLP. All rights reserved.</span>
+      &nbsp;&middot;&nbsp;
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </div>
+  </div>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./portal.js"></script>
 <script>
@@ -80,7 +117,7 @@
         return;
       }
       if (profile.disclaimer_accepted) {
-        // Already accepted, go to dashboard
+        // Already accepted, go to appropriate page
         if (profile.role === 'admin') {
           window.location.href = './admin.html';
         } else {
@@ -110,7 +147,9 @@
   });
 
   btnDecline.addEventListener('click', async function() {
-    await signOut();
+    // Sign out and redirect to homepage (not login)
+    var sb = initSupabase();
+    if (sb) { await sb.auth.signOut(); }
     window.location.href = '../index.html';
   });
 })();

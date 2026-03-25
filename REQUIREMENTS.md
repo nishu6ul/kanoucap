@@ -379,3 +379,51 @@ Log in as admin at /members/admin.html, use the Document Upload tab.
 
 ### Create a new portal user
 Log in as admin at /members/admin.html, use the User Management tab.
+
+---
+
+## Changelog
+
+### 2026-03-25: Portal Pages Fix
+- **portal.js**: Renamed internal `let supabase` to `var _sbClient` to avoid fatal conflict with `window.supabase` global from CDN. This was causing all portal functions to silently fail.
+- **portal.js**: Fixed signOut() redirect from `./login.html` to `../index.html` (homepage)
+- **portal.js**: Service role key updated to correct value (iat:1774355611)
+- **admin.html**: Complete rewrite with site header/footer, working tab switching, user creation with temp password display, document upload/delete, sign out
+- **dashboard.html**: Complete rewrite with site header/footer, welcome message, documents grouped by category, "No documents available" message instead of infinite loading, sign out
+- **change-password.html**: Complete rewrite with site header/footer, password validation, proper redirect after change
+- **disclaimer.html**: Complete rewrite with site header/footer, Accept sets disclaimer_accepted=true and redirects to dashboard, Decline signs out and redirects to homepage
+- **login.html**: Rewritten with type=button click handler (not form submit) to avoid all form submission interference. Fully inline JS for reliability.
+- **RLS policies**: Fixed infinite recursion on profiles table by creating `is_admin()` SECURITY DEFINER function
+
+### 2026-03-25: Team Page Update
+- Moved Shishir Singh below Irakli Gabidzashvili
+- Added Rahul Dalal (Associate) with photo
+- Added Daksh Jain (Associate) with photo
+
+### 2026-03-24: Initial Portal Build
+- Created client portal with login, admin panel, dashboard, disclaimer, change-password pages
+- Set up Supabase project (kanoucap-portal) with profiles and documents tables
+- Pre-seeded 3 admin accounts
+
+### 2026-03-21: Initial Website Build
+- Built complete static site: homepage, team, insights, news, contact
+- Design: navy + gold palette, Cormorant + DM Sans typography
+- Deployed to Netlify via GitHub auto-deploy
+- Contact form via FormSubmit.co
+- Dark mode with cookie persistence
+
+### Known Issues / Notes
+- Service role key is exposed in portal.js (frontend). This is a security concern for production but acceptable for MVP. Long-term: move admin operations to a Supabase Edge Function or backend API.
+- FormSubmit.co requires a one-time email confirmation click from info@kanoucap.com before form submissions are delivered.
+- DNS for kanoucap.com still points to Wix. DNS change instructions sent to IT team.
+- Netlify free tier: 300 build minutes/month, resets monthly. Site stays live even if limit is hit.
+
+### Test Accounts
+| Email | Password | Role | Fund Type | Notes |
+|-------|----------|------|-----------|-------|
+| nishant@kanoucap.com | Lansdowne#123 | admin | long_only | Primary admin |
+| info@kanoucap.com | Lansdowne#123 | admin | long_only | |
+| clients@kanoucap.com | Lansdowne#123 | admin | long_only | |
+| test.longonly@example.com | TestPass#123 | member | long_only | must_change_password=true |
+| test.lownet@example.com | TestPass#123 | member | low_net_hedge | must_change_password=true |
+| test.varnet@example.com | TestPass#123 | member | variable_net_hedge | must_change_password=true |
