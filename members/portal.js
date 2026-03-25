@@ -290,8 +290,8 @@ function formatFileSize(bytes) {
 function formatFundType(ft) {
   var map = {
     'long_only': 'Long Only',
-    'low_net_hedge': 'Low Net Hedge',
-    'variable_net_hedge': 'Variable Net Hedge',
+    'low_net_hedge': 'Low Net Hedge Fund',
+    'variable_net_hedge': 'Variable Net Hedge Fund',
     'all': 'All Funds'
   };
   return map[ft] || ft;
