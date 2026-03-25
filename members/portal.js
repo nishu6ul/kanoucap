@@ -4,7 +4,7 @@
    ============================================================ */
 
 const SUPABASE_URL = 'https://zwyymyalysvjlujrgfcg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eXlteWFseXN2amx1anJnZmNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NzU2MTEsImV4cCI6MjA1OTA1MTYxMX0.yrVjQbGAs_wkZssYVplRLZxIqQexYAceGrb6heoWel4';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eXlteWFseXN2amx1anJnZmNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTU2MTEsImV4cCI6MjA4OTkzMTYxMX0.yrVjQbGAs_wkZssYVplRLZxIqQexYAceGrb6heoWel4';
 
 let supabase;
 
