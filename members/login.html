@@ -67,7 +67,7 @@
 
     <div id="alert-error" class="alert alert--error"></div>
 
-    <form class="contact-form" id="login-form" style="gap: var(--space-4);">
+    <form class="contact-form" id="login-form" method="POST" onsubmit="return false;" style="gap: var(--space-4);">
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
@@ -104,37 +104,50 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./portal.js"></script>
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
   var form = document.getElementById('login-form');
   var alertEl = document.getElementById('alert-error');
   var btn = document.getElementById('btn-login');
 
-  initSupabase();
-  getSession().then(function(session) {
-    if (session) {
-      getProfile(session.user.id).then(function(profile) {
-        if (profile) {
-          if (profile.must_change_password) {
-            window.location.href = './change-password.html';
-          } else if (profile.role === 'admin') {
-            window.location.href = './admin.html';
-          } else if (!profile.disclaimer_accepted) {
-            window.location.href = './disclaimer.html';
-          } else {
-            window.location.href = './dashboard.html';
+  // Immediately prevent default form submission
+  form.onsubmit = function(e) { e.preventDefault(); return false; };
+
+  try {
+    initSupabase();
+    getSession().then(function(session) {
+      if (session) {
+        getProfile(session.user.id).then(function(profile) {
+          if (profile) {
+            redirectByRole(profile);
           }
-        }
-      });
+        }).catch(function() {});
+      }
+    }).catch(function() {});
+  } catch(e) {
+    console.log('Session check skipped:', e.message);
+  }
+
+  function redirectByRole(profile) {
+    if (profile.must_change_password) {
+      window.location.href = './change-password.html';
+    } else if (profile.role === 'admin') {
+      window.location.href = './admin.html';
+    } else if (!profile.disclaimer_accepted) {
+      window.location.href = './disclaimer.html';
+    } else {
+      window.location.href = './dashboard.html';
     }
-  });
+  }
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
+    e.stopPropagation();
     hideAlert(alertEl);
     btn.textContent = 'Signing in...';
     btn.disabled = true;
 
     try {
+      initSupabase();
       var email = document.getElementById('email').value.trim();
       var password = document.getElementById('password').value;
 
@@ -148,22 +161,15 @@
         return;
       }
 
-      if (profile.must_change_password) {
-        window.location.href = './change-password.html';
-      } else if (profile.role === 'admin') {
-        window.location.href = './admin.html';
-      } else if (!profile.disclaimer_accepted) {
-        window.location.href = './disclaimer.html';
-      } else {
-        window.location.href = './dashboard.html';
-      }
+      redirectByRole(profile);
     } catch (err) {
       showAlert(alertEl, err.message || 'Invalid email or password. Please try again.');
       btn.textContent = 'Sign In';
       btn.disabled = false;
     }
+    return false;
   });
-})();
+});
 </script>
 <script src="../theme.js"></script>
 </body>
